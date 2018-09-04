@@ -2,6 +2,8 @@
 
 namespace AtlantisPHP\Telemonlog;
 
+use Closure;
+
 class LogHandler
 {
   /**
@@ -40,6 +42,24 @@ class LogHandler
   public static $env;
 
   /**
+   * $event
+   *
+   * @var callback
+   */
+  public static $event;
+
+  /**
+   * Assign event callback
+   *
+   * @param Closure $callback
+   * @return void
+   */
+  public static function event(Closure $callback) : void
+  {
+    self::$event = $callback;
+  }
+
+  /**
    * handle log
    *
    * @param string $level
@@ -55,11 +75,15 @@ class LogHandler
     $date = date("Y-m-d").' '.date("G:i:s");
     $env  = LogHandler::$env;
 
-    $data = $message . ($array == [] ? '' : ' ' . print_r($array, true));
+    $data = $message . ($array == [] ? '' : ' ' . json_encode($array, true));
 
     (new LogHandler)->isDisk();
 
     file_put_contents($log, '['.$date.'] ' . $env . '.' . strtoupper($level).' ' . $data . PHP_EOL, FILE_APPEND);
+
+    if (is_callable(self::$event)) {
+      call_user_func_array(self::$event, [$env, $level, $message, $array]);
+    }
   }
 
   /**
@@ -81,8 +105,6 @@ class LogHandler
    */
   private function cleanPath($path) : string
   {
-    $path = substr($path, strlen($path) - 1, 1) == '/' ? substr($path, 0, strlen($path) - 1) : $path;
-    $path = substr($path, strlen($path) - 1, 1) == '\\' ? substr($path, 1, strlen($path) - 1) : $path;
     $path = preg_replace('#' . $this->DS . '+#', $this->DS, $path);
 
     return $path;
