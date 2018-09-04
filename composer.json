@@ -1,0 +1,19 @@
+{
+  "name": "atlantisphp/telemonlog",
+  "description": "Logger",
+  "version": "1.0",
+  "license": "MIT",
+  "type": "package",
+  "authors": [
+      {
+        "name": "Donald Pakkies",
+        "email": "donaldpakkies@gmail.com"
+      }
+  ],
+  "autoload": {
+    "psr-4": {
+      "AtlantisPHP\\Telemonlog\\": ""
+    }
+  },
+  "minimum-stability":"stable"
+}
